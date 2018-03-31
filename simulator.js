@@ -317,7 +317,7 @@ function Factory (machineArr, scheduleType, numOfDays, pkn, pkc1) {
 // what are the global variables?
 
 
-function DailySimulator (pkn, pkc1, macbrk) {
+function DailySimulator (pkn, pkc1, hours, macbrk) {
     var pknCounter = initialPkn = pkn;
     var pkoCounter = 0;
     var pkc1Counter = pkc1 || 0;
@@ -327,11 +327,13 @@ function DailySimulator (pkn, pkc1, macbrk) {
     var pknToPko = 0.35
     var pkc1ToPko = 0.09;
     var pkc1ToPkc2 = 0.95;
+    var summary = '';
 
     var prefixArr = ['', 'st hour', 'nd hour', 'rd hour'];
     
     var m1cap = 0.625; // how much pkn/pkc1 machine1 can process every hour
-    var m2cap = 0.41666667; // how much pkn/pkc1 machine2 can process every hour
+    var m2cap = 0.41666667; // how much pkn/pkc1 machine2 can process every hour on first press
+    var m2cap2 =  7 / 24;
 
     var mac1Online = true;
     var mac2Online = true;
@@ -339,6 +341,7 @@ function DailySimulator (pkn, pkc1, macbrk) {
     var machineWillBreak, whichMachine, breakSeverity, timeOfBreakage;
 
     var fixtime = fixtime1 = fixtime2 = 0;
+    var breakageCounter = 0;
     console.log(macbrk, 'breakage object');
 
     if(macbrk.machineWillBreak) {
@@ -346,14 +349,17 @@ function DailySimulator (pkn, pkc1, macbrk) {
         whichMachine = macbrk.whichMachine;
         breakSeverity = macbrk.breakSeverity;
         timeOfBreakage = macbrk.timeOfBreakage;
+        breakageCounter = 1;
+        summary += '<p>Breakage: Machine ' + whichMachine + ' broke down in the ' + timeOfBreakage + ' hour </p>'; 
         console.log('machine ' + whichMachine + ' broke down in the ' + timeOfBreakage + 'hour');
     } else {
+        summary += '<p>No machines broke down</p>';
         console.log('No machines broke down');
     }
 
     
 
-    for (var i = 1; i <= 16; i++) {
+    for (var i = 1; i <= hours; i++) {
         if(i === timeOfBreakage) {
             if(breakSeverity === 'low') {
                 fixtime = 1;
@@ -404,10 +410,10 @@ function DailySimulator (pkn, pkc1, macbrk) {
         if(mac2Online && fixtime2 === 0) {
             if(pkc1Counter > m2cap) {
                 console.log('machine 2 doing second press at ' + i, i < 4 ? prefixArr[i] : 'th' + ' hour');
-                pkoCounter += (m2cap * pkc1ToPko);
-                pkc2Counter += (m2cap * pkc1ToPkc2);
+                pkoCounter += (m2cap2 * pkc1ToPko);
+                pkc2Counter += (m2cap2 * pkc1ToPkc2);
         
-                pkc1Counter -= m2cap;
+                pkc1Counter -= m2cap2;
             }
             //  else if(pkc1Counter >= m2cap){
             //     console.log('machine 2 doing first press at ' + i, i < 4 ? prefixArr[i] : 'th' + ' hour')
@@ -445,9 +451,10 @@ function DailySimulator (pkn, pkc1, macbrk) {
     
     }
 
-
     var sales = (pkoCounter * 350000) + (pkc2Counter * 40000);
     var pknCrushed = initialPkn - pknCounter;
+    console.log('pkn crushed: ' + pknCrushed + '\n' + 'pkn left: ' + pknCounter + '\n' + 'pkc1 left: ' + pkc1Counter + '\n' + 'pkc2 produced: ' + pkc2Counter + '\n' + 'pko produced : ' + pkoCounter + '\n' + 'sales: ' + sales + '\n');
+    summary += '<p>pkn crushed: ' + pknCrushed.toFixed(2) + '</p>' + '<p>pkn left: ' + pknCounter.toFixed(2) + '</p>' + '<p>pkc1 left: ' + pkc1Counter.toFixed(2) + '</p>' + '<p>pkc2 produced: ' + pkc2Counter.toFixed(2) + '</p>' + '<p>pko produced : ' + pkoCounter.toFixed(2) + '</p>' + '<p>sales: ' + sales.toFixed(2) + '</p>'
 
     return {    
         pknCrushed,
@@ -455,12 +462,14 @@ function DailySimulator (pkn, pkc1, macbrk) {
         pkoCounter,
         pkc1Counter,
         pkc2Counter,
-        sales
+        breakageCounter,
+        sales,
+        summary
     }
 }
 
 function WeeklySimulator(days, totalPkn) {
-    var dailySim, macbrk, weeklyPko = weeklyPkc1 = weeklyPkn = weeklyPkc2 = weeklySales = 0;
+    var dailySim, macbrk, weeklyPko = weeklyPkc1 = weeklyPkn = weeklyPkc2 = weeklySales = weeklyBreakage = 0;
     var weeklyProductionCost = 8100000 + 36500 + 140024 + 157500;
     var cashIn = 0;
     for (var i = 1; i <= days; i++) {
@@ -470,6 +479,7 @@ function WeeklySimulator(days, totalPkn) {
             weeklyPko += dailySim.pkoCounter;
             weeklyPkc1 = dailySim.pkc1Counter;
             weeklyPkc2 += dailySim.pkc2Counter;
+            weeklyBreakage + dailySim.breakageCounter;
             totalPkn = dailySim.pknCounter;
             weeklySales += dailySim.sales;
         } else {
@@ -478,6 +488,7 @@ function WeeklySimulator(days, totalPkn) {
             weeklyPko += dailySim.pkoCounter;
             weeklyPkc1 = dailySim.pkc1Counter;
             weeklyPkc2 += dailySim.pkc2Counter;
+            weeklyBreakage += dailySim.breakageCounter;
             totalPkn = dailySim.pknCounter;
             weeklySales += dailySim.sales;
         }
@@ -498,7 +509,7 @@ function WeeklySimulator(days, totalPkn) {
         console.log('Day ' + i + ' summary');
         console.log('pkn crushed: ' + dailySim.pknCrushed + '\n' + 'pkn left: ' + dailySim.pknCounter + '\n' + 'pkc1 left: ' + dailySim.pkc1Counter + '\n' + 'pkc2 produced: ' + dailySim.pkc2Counter + '\n' + 'pko produced : ' + dailySim.pkoCounter + '\n' + 'sales: ' + dailySim.sales + '\n');
         console.log('Weekly cummulative summary');
-        console.log('pkn left: ' + totalPkn + '\n' + 'pkc1 left: ' + weeklyPkc1 + '\n' + 'pkc2 produced: ' + weeklyPkc2 + '\n' + 'pko produced: ' + weeklyPko + '\n' + 'sales: ' + weeklySales + '\n');
+        console.log('pkn left: ' + totalPkn + '\n' + 'pkc1 left: ' + weeklyPkc1 + '\n' + 'pkc2 produced left: ' + weeklyPkc2 + '\n' + 'pko produced left: ' + weeklyPko + '\n' + 'sales: ' + weeklySales + '\n' + 'breakdowns: ' + weeklyBreakage + '\n');
     }
 
     var netRevenue = weeklySales - weeklyProductionCost;

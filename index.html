@@ -9,31 +9,80 @@
 </head>
 <body>
     <div class="container">
-        <h1>Margin Calculator</h1>
-        <p>Enter the variables in the textboxes and press the calculate button</p>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
+                    <h1>Daily Yield Calculator</h1>
+                    <p>Enter the variables in the textboxes and press the calculate button</p>
                 <!-- <form action=""> -->
                     <label for="unit_price">
-                        Unit Price
+                        Machine 1 capacity
                     </label>
-                    <input type="number" name="unit_price" id="unit_price"><br>
+                    <input type="text" name="mac1_cap" id="mac1_cap" value="15 Tons" readonly><br>
                     <label for="quantity">
-                        Quantity
+                        Machine 2 capacity
                     </label>
-                    <input type="number" name="quantity" id="quantity"><br>
+                    <input type="text" name="mac2_cap" id="mac2_cap" value="10 Tons" readonly><br>
                     <label for="logistics">
-                        Logistics Cost
+                        Starting PKN
                     </label>
-                    <input type="number" name="logistics" id="logistics"><br>
-                    <label for="selling_price">
+                    <input type="number" name="pkn_amt" id="pkn_amt"><br>
+                    <label for="logistics">
+                        Total Shift hours
+                    </label>
+                    <input type="number" name="hours" id="hours"><br>
+                    
+                    <input type="checkbox" id="breakage" value="true">
+                    <label for="breakage">Simulate with breakage?</label><br>
+                    <!-- <label for="selling_price">
                         Selling Price
                     </label>
-                    <input type="number" name="selling_price" id="selling_price"><br>
-                    <button onclick="marginCalculator.calcMargin()">Calculate Margin</button>
-                    <button onclick="marginCalculator.init()">Clear</button>
+                    <input type="number" name="selling_price" id="selling_price"><br> -->
+                    <button onclick="marginCalculator.calcMargin()">Calculate Yield</button>
+                    <!-- <button onclick="marginCalculator.init()">Clear</button> -->
                 <!-- </form> -->
+                <div>
+                    <span id="daily-result"></span>
+                </div>
             </div>
+            <div class="col-md-6">
+                    <h1>Weekly Yield Calculator</h1>
+                    <p>Enter the variables in the textboxes and press the calculate button</p>
+                <!-- <form action=""> -->
+                    <label for="unit_price">
+                        Machine 1 capacity
+                    </label>
+                    <input type="text" name="mac1_cap" id="mac1_cap" value="15 Tons" readonly><br>
+                    <label for="quantity">
+                        Machine 2 capacity
+                    </label>
+                    <input type="text" name="mac2_cap" id="mac2_cap" value="10 Tons" readonly><br>
+                    <label for="logistics">
+                        Starting PKN
+                    </label>
+                    <input type="number" name="pkn_amt" id="pkn_amt"><br>
+                    <label for="logistics">
+                        Total Shift hours
+                    </label>
+                    <input type="number" name="hours" id="hours"><br>
+                    <label for="logistics">
+                        Number of Days
+                    </label>
+                    <input type="number" name="hours" id="hours"><br>
+                    
+                    <input type="checkbox">
+                    <label for="breakage" >Simulate with breakage?</label><br>
+                    <!-- <label for="selling_price">
+                        Selling Price
+                    </label>
+                    <input type="number" name="selling_price" id="selling_price"><br> -->
+                    <button onclick="marginCalculator.calcMargin()">Calculate Yield</button>
+                    <!-- <button onclick="marginCalculator.init()">Clear</button> -->
+                <!-- </form> -->
+                <div>
+                    <span id="weekly-result"></span>
+                </div>
+            </div>
+            
             <div>
                 <span id="investment"></span><br>
                 <span id="margin-result"></span>
@@ -55,21 +104,29 @@
 
             calcMargin: function () {
 
-                var marginText = "<b>Overall margin: </b>";
-                var investmentText = "<b>Total Investment: </b>";
+                var marginText = "<b>Summary: </b>";
+                // var investmentText = "<b>Total Investment: </b>";
 
                 // TODO: validate entries first
-                var unit_price = parseInt(document.getElementById('unit_price').value);
-                var qty = parseInt(document.getElementById('quantity').value);
-                var logistics = parseInt(document.getElementById('logistics').value);
-                var sell_price = parseInt(document.getElementById('selling_price').value);
+                var pkn = parseInt(document.getElementById('pkn_amt').value);
+                var hours = parseInt(document.getElementById('hours').value);
+                var breakage = document.getElementById('breakage').checked;
+                console.log(breakage, "breakage");
 
-                var investment = (unit_price * qty) + logistics;
+                if(breakage) {
+                    var macbrk = new machineBreakage()
+                    var day = new DailySimulator(pkn, 0, hours, macbrk);
+                    document.getElementById('daily-result').innerHTML = marginText + day.summary;                    
+                } else {
+                    var day = new DailySimulator(pkn, 0, hours, {machineWillBreak: false});   
+                    document.getElementById('daily-result').innerHTML = marginText + day.summary;
 
-                var margin = (sell_price * qty) - investment;
+                }
+                // var sell_price = parseInt(document.getElementById('selling_price').value);
 
-                document.getElementById('investment').innerHTML = investmentText + investment;
-                document.getElementById('margin-result').innerHTML = marginText + margin;
+                // var investment = (unit_price * qty) + logistics;
+
+                // var margin = (sell_price * qty) - investment;
 
             }
         }
