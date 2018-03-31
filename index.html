@@ -12,7 +12,7 @@
         <div class="row">
             <div class="col-md-6">
                     <h1>Daily Yield Calculator</h1>
-                    <p>Enter the variables in the textboxes and press the calculate button</p>
+                    <p><em>Enter the values in the textboxes and hit the calculate button</em></p>
                 <!-- <form action=""> -->
                     <label for="unit_price">
                         Machine 1 capacity
@@ -23,16 +23,16 @@
                     </label>
                     <input type="text" name="mac2_cap" id="mac2_cap" value="10 Tons" readonly><br>
                     <label for="logistics">
-                        Starting PKN
+                        Starting PKN (Daily)
                     </label>
                     <input type="number" name="pkn_amt" id="pkn_amt"><br>
                     <label for="logistics">
-                        Total Shift hours
+                        Total Shift hours (Daily)
                     </label>
                     <input type="number" name="hours" id="hours"><br>
                     
                     <input type="checkbox" id="breakage" value="true">
-                    <label for="breakage">Simulate with breakage?</label><br>
+                    <label for="breakage">Include machine downtime?</label><br>
                     <!-- <label for="selling_price">
                         Selling Price
                     </label>
@@ -46,7 +46,7 @@
             </div>
             <div class="col-md-6">
                     <h1>Weekly Yield Calculator</h1>
-                    <p>Enter the variables in the textboxes and press the calculate button</p>
+                    <p><em>Enter the values in the textboxes and hit the calculate button</em></p>
                 <!-- <form action=""> -->
                     <label for="unit_price">
                         Machine 1 capacity
@@ -57,17 +57,18 @@
                     </label>
                     <input type="text" name="mac2_cap" id="mac2_cap" value="10 Tons" readonly><br>
                     <label for="logistics">
-                        Starting PKN
+                        Starting PKN (Weekly)
                     </label>
                     <input type="number" name="w_pkn_amt" id="w_pkn_amt"><br>
                     <label for="logistics">
-                        Total Shift hours
+                        Total Shift hours (Daily)
                     </label>
                     <input type="number" name="w_hours" id="w_hours"><br>
                     <label for="logistics">
                         Number of Days
                     </label>
                     <input type="number" name="days" id="days"><br>
+                    <p><em>Machine downtine is automatically included </em></p>
                     
                     <!-- <input type="checkbox" id="breakages" value="true">
                     <label for="breakage" >Simulate with breakage?</label><br> -->
@@ -104,7 +105,7 @@
 
             calcDailyYield: function () {
 
-                var marginText = "<b>Summary: </b>";
+                var marginText = "<b>Day Summary: </b>";
                 // var investmentText = "<b>Total Investment: </b>";
 
                 // TODO: validate entries first
@@ -127,7 +128,7 @@
 
             calcWeeklyYield: function () {
 
-                var marginText = "<b>Summary: </b>";
+                var marginText = "<b>Week Summary: </b>";
                 // var investmentText = "<b>Total Investment: </b>";
 
                 // TODO: validate entries first
