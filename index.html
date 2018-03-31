@@ -37,7 +37,7 @@
                         Selling Price
                     </label>
                     <input type="number" name="selling_price" id="selling_price"><br> -->
-                    <button onclick="marginCalculator.calcMargin()">Calculate Yield</button>
+                    <button onclick="marginCalculator.calcDailyYield()">Calculate Yield</button>
                     <!-- <button onclick="marginCalculator.init()">Clear</button> -->
                 <!-- </form> -->
                 <div>
@@ -59,23 +59,23 @@
                     <label for="logistics">
                         Starting PKN
                     </label>
-                    <input type="number" name="pkn_amt" id="pkn_amt"><br>
+                    <input type="number" name="w_pkn_amt" id="w_pkn_amt"><br>
                     <label for="logistics">
                         Total Shift hours
                     </label>
-                    <input type="number" name="hours" id="hours"><br>
+                    <input type="number" name="w_hours" id="w_hours"><br>
                     <label for="logistics">
                         Number of Days
                     </label>
-                    <input type="number" name="hours" id="hours"><br>
+                    <input type="number" name="days" id="days"><br>
                     
-                    <input type="checkbox">
+                    <input type="checkbox" id="breakages" value="true">
                     <label for="breakage" >Simulate with breakage?</label><br>
                     <!-- <label for="selling_price">
                         Selling Price
                     </label>
                     <input type="number" name="selling_price" id="selling_price"><br> -->
-                    <button onclick="marginCalculator.calcMargin()">Calculate Yield</button>
+                    <button onclick="marginCalculator.calcWeeklyYield()">Calculate Yield</button>
                     <!-- <button onclick="marginCalculator.init()">Clear</button> -->
                 <!-- </form> -->
                 <div>
@@ -102,7 +102,7 @@
                 document.getElementById('margin-result').innerHTML = '';
             },
 
-            calcMargin: function () {
+            calcDailyYield: function () {
 
                 var marginText = "<b>Summary: </b>";
                 // var investmentText = "<b>Total Investment: </b>";
@@ -122,11 +122,26 @@
                     document.getElementById('daily-result').innerHTML = marginText + day.summary;
 
                 }
-                // var sell_price = parseInt(document.getElementById('selling_price').value);
 
-                // var investment = (unit_price * qty) + logistics;
+            },
 
-                // var margin = (sell_price * qty) - investment;
+            calcWeeklyYield: function () {
+
+                var marginText = "<b>Summary: </b>";
+                // var investmentText = "<b>Total Investment: </b>";
+
+                // TODO: validate entries first
+                var pkn = parseInt(document.getElementById('w_pkn_amt').value);
+                var hours = parseInt(document.getElementById('w_hours').value);
+                var days = parseInt(document.getElementById('days').value);
+                var breakage = document.getElementById('breakages').checked;
+                console.log(breakage, "breakage");
+
+                
+                var week = new WeeklySimulator(days, pkn); 
+                console.log(week);  
+                document.getElementById('weekly-result').innerHTML = marginText + week.summary;
+
 
             }
         }

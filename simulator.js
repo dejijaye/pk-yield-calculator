@@ -350,7 +350,7 @@ function DailySimulator (pkn, pkc1, hours, macbrk) {
         breakSeverity = macbrk.breakSeverity;
         timeOfBreakage = macbrk.timeOfBreakage;
         breakageCounter = 1;
-        summary += '<p>Breakage: Machine ' + whichMachine + ' broke down in the ' + timeOfBreakage + ' hour </p>'; 
+        summary += '<p>Breakage: Machine ' + whichMachine + ' broke down in the ' + timeOfBreakage + ' hour, damage severity was ' + breakSeverity + '</p>'; 
         console.log('machine ' + whichMachine + ' broke down in the ' + timeOfBreakage + 'hour');
     } else {
         summary += '<p>No machines broke down</p>';
@@ -472,10 +472,11 @@ function WeeklySimulator(days, totalPkn) {
     var dailySim, macbrk, weeklyPko = weeklyPkc1 = weeklyPkn = weeklyPkc2 = weeklySales = weeklyBreakage = 0;
     var weeklyProductionCost = 8100000 + 36500 + 140024 + 157500;
     var cashIn = 0;
+    var summary = '';
     for (var i = 1; i <= days; i++) {
         if(weeklyPkc1 === 0) {
             macbrk = new machineBreakage();
-            dailySim = new DailySimulator(totalPkn, weeklyPkc1, macbrk);
+            dailySim = new DailySimulator(totalPkn, weeklyPkc1, 16, macbrk);
             weeklyPko += dailySim.pkoCounter;
             weeklyPkc1 = dailySim.pkc1Counter;
             weeklyPkc2 += dailySim.pkc2Counter;
@@ -484,7 +485,7 @@ function WeeklySimulator(days, totalPkn) {
             weeklySales += dailySim.sales;
         } else {
             macbrk = new machineBreakage();
-            dailySim = new DailySimulator(totalPkn, weeklyPkc1, macbrk);
+            dailySim = new DailySimulator(totalPkn, weeklyPkc1, 16, macbrk);
             weeklyPko += dailySim.pkoCounter;
             weeklyPkc1 = dailySim.pkc1Counter;
             weeklyPkc2 += dailySim.pkc2Counter;
@@ -494,17 +495,17 @@ function WeeklySimulator(days, totalPkn) {
         }
 
         // if we have enough pko or pkc2 (min sale qty set to 10T) to sell, Sell it!
-        if(weeklyPko >= 10 ) {
-            var cashed = 10 * PKO_PRICE;
-            cashIn += cashed;
-            weeklyPko -= 10;
-            console.log('We are cashing in ' + cashed +' from PKO on day ' + i + ' total cash in: ' + cashIn);
-        } else if(weeklyPkc2 >= 10) {
-            var cashed = 10 * PKC2_PRICE;
-            cashIn += cashed
-            weeklyPkc2 -= 10;
-            console.log('We are cashing in ' + cashed +' from PKC2 on day ' + i + ' total cash in: ' + cashIn);
-        }
+        // if(weeklyPko >= 10 ) {
+        //     var cashed = 10 * PKO_PRICE;
+        //     cashIn += cashed;
+        //     weeklyPko -= 10;
+        //     console.log('We are cashing in ' + cashed +' from PKO on day ' + i + ' total cash in: ' + cashIn);
+        // } else if(weeklyPkc2 >= 10) {
+        //     var cashed = 10 * PKC2_PRICE;
+        //     cashIn += cashed
+        //     weeklyPkc2 -= 10;
+        //     console.log('We are cashing in ' + cashed +' from PKC2 on day ' + i + ' total cash in: ' + cashIn);
+        // }
 
         console.log('Day ' + i + ' summary');
         console.log('pkn crushed: ' + dailySim.pknCrushed + '\n' + 'pkn left: ' + dailySim.pknCounter + '\n' + 'pkc1 left: ' + dailySim.pkc1Counter + '\n' + 'pkc2 produced: ' + dailySim.pkc2Counter + '\n' + 'pko produced : ' + dailySim.pkoCounter + '\n' + 'sales: ' + dailySim.sales + '\n');
@@ -513,7 +514,8 @@ function WeeklySimulator(days, totalPkn) {
     }
 
     var netRevenue = weeklySales - weeklyProductionCost;
-    var netCashIn = cashIn - weeklyProductionCost;
+    // var netCashIn = cashIn - weeklyProductionCost;
+    summary += '<p>pkn left: ' + totalPkn + '</p>' + '<p>pkc1 left: ' + weeklyPkc1 + '</p>' + '<p>pkc2 produced left: ' + weeklyPkc2 + '</p>' + '<p>pko produced left: ' + weeklyPko + '</p>' + '<p>sales: ' + weeklySales + '</p>' + '<p>breakdowns: ' + weeklyBreakage + '</p>' + '<p>Net revenue: ' + netRevenue + '</p>';
 
     return {
         weeklyPko,
@@ -521,8 +523,7 @@ function WeeklySimulator(days, totalPkn) {
         weeklyPkc2,
         weeklySales,
         netRevenue,
-        netCashIn,
-        cashIn
+        summary,
     }
 }
 
