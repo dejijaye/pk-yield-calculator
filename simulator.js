@@ -515,7 +515,7 @@ function WeeklySimulator(days, totalPkn) {
 
     var netRevenue = weeklySales - weeklyProductionCost;
     // var netCashIn = cashIn - weeklyProductionCost;
-    summary += '<p>pkn left: ' + totalPkn + '</p>' + '<p>pkc1 left: ' + weeklyPkc1 + '</p>' + '<p>pkc2 produced left: ' + weeklyPkc2 + '</p>' + '<p>pko produced left: ' + weeklyPko + '</p>' + '<p>sales: ' + weeklySales + '</p>' + '<p>breakdowns: ' + weeklyBreakage + '</p>' + '<p>Net revenue: ' + netRevenue + '</p>';
+    summary += '<p>pkn left: ' + totalPkn + '</p>' + '<p>pkc1 left: ' + weeklyPkc1 + '</p>' + '<p>pkc2 produced: ' + weeklyPkc2 + '</p>' + '<p>pko produced: ' + weeklyPko + '</p>' + '<p>sales: ' + weeklySales + '</p>' + '<p>breakdowns: ' + weeklyBreakage + '</p>' + '<p>Net revenue: ' + netRevenue + '</p>';
 
     return {
         weeklyPko,
