@@ -17,13 +17,13 @@ var PKSL_PRICE = 40000;// PKSL PRICE	₦40,000
 var PKC2_PRICE = 40000;// PKC2 PRICE	₦40,000
 var PKN_PRICE = 135000;// PKN PRICE	₦135,000
 var WORKER = 30000;// Casual Worker	₦30,000
-var MECHANIC = 120000;// Mechanic/Engineer	₦120,000
-var PRODUCTION = 80000// Production Manager	₦80,000
-var SECURITY = 50000;// SECURITY	₦50,000
-var NEPA = 0.25;// Expected NEPA/day	25%
-var GEN = 0.75;// Expected Gen/day	75%
-var NEPA_HOURLY = 833;// NEPA cost/hour	₦833
-var GEN_HOURLY = 1667// GEN COST/HOUR;	₦1,667
+var MECHANIC = 120000;// Mechanic/Engineer	₦120,000/24
+var PRODUCTION = 80000// Production Manager	₦80,000/24
+var SECURITY = 50000;// SECURITY	₦50,000/24
+var NEPA = 0.25;// Expected NEPA/day	25% 11424
+var GEN = 0.75;// Expected Gen/day	75% 53172
+var NEPA_HOURLY = 2856;// NEPA cost/hour	₦2856
+var GEN_HOURLY = 4431// GEN COST/HOUR;	₦4431
 var CAR_RENTAL = 16500// Car Rent/week	₦16,500
 // SECOND CRUSH PROCESSING DISCOUNT	100%
 // PKC1 -> PKC2 Efficiency (M1)	86%
@@ -322,11 +322,14 @@ function DailySimulator (pkn, pkc1, hours, macbrk) {
     var pkoCounter = 0;
     var pkc1Counter = pkc1 || 0;
     var pkc2Counter = 0;
+    var pkslCounter = 0;
     
     var pknToPkc1 = 0.55;
     var pknToPko = 0.35
     var pkc1ToPko = 0.09;
     var pkc1ToPkc2 = 0.95;
+    var pknToPksl = 0.07;
+    var pkc1ToPksl = 0.05
     var summary = '';
 
     var prefixArr = ['', 'st hour', 'nd hour', 'rd hour'];
@@ -412,6 +415,7 @@ function DailySimulator (pkn, pkc1, hours, macbrk) {
                 console.log('machine 2 doing second press at ' + i, i < 4 ? prefixArr[i] : 'th' + ' hour');
                 pkoCounter += (m2cap2 * pkc1ToPko);
                 pkc2Counter += (m2cap2 * pkc1ToPkc2);
+                pkslCounter += (m2cap2 * pkc1ToPksl);
         
                 pkc1Counter -= m2cap2;
             }
@@ -426,6 +430,7 @@ function DailySimulator (pkn, pkc1, hours, macbrk) {
                 pknCounter -= m2cap;
                 pkoCounter += (m2cap * pknToPko);
                 pkc1Counter += (m2cap * pknToPkc1);
+                pkslCounter += (m2cap * pknToPksl);
             }
         } else {
             console.log('On the ' + i + 'th hour, fixing machine 2, ' + fixtime2 + ' hours left')
@@ -436,11 +441,13 @@ function DailySimulator (pkn, pkc1, hours, macbrk) {
             if(pknCounter >= m1cap) {
                 pknCounter -= m1cap;
                 pkoCounter += (m1cap * pknToPko);
-                pkc1Counter += (m1cap * pknToPkc1); 
+                pkc1Counter += (m1cap * pknToPkc1);
+                pkslCounter += (m1cap * pknToPksl);
             } else {
                 pknCounter -= pknCounter;
                 pkoCounter += (pknCounter * pknToPko);
                 pkc1Counter += (pknCounter * pknToPkc1); 
+                pkslCounter += (pknCounter * pknToPksl);
                 console.log("pkn finished at the " + i + "th hour");
                 break;
             }
@@ -451,10 +458,10 @@ function DailySimulator (pkn, pkc1, hours, macbrk) {
     
     }
 
-    var sales = (pkoCounter * 350000) + (pkc2Counter * 40000);
+    var sales = (pkoCounter * 350000) + (pkc2Counter * 40000) +(pkslCounter * 40000);
     var pknCrushed = initialPkn - pknCounter;
-    console.log('pkn crushed: ' + pknCrushed + '\n' + 'pkn left: ' + pknCounter + '\n' + 'pkc1 left: ' + pkc1Counter + '\n' + 'pkc2 produced: ' + pkc2Counter + '\n' + 'pko produced : ' + pkoCounter + '\n' + 'sales: ' + sales + '\n');
-    summary += '<p>pkn crushed: ' + pknCrushed.toFixed(2) + '</p>' + '<p>pkn left: ' + pknCounter.toFixed(2) + '</p>' + '<p>pkc1 left: ' + pkc1Counter.toFixed(2) + '</p>' + '<p>pkc2 produced: ' + pkc2Counter.toFixed(2) + '</p>' + '<p>pko produced : ' + pkoCounter.toFixed(2) + '</p>' + '<p>sales: ' + sales.toFixed(2) + '</p>'
+    console.log('pkn crushed: ' + pknCrushed + '\n' + 'pkn left: ' + pknCounter + '\n' + 'pkc1 left: ' + pkc1Counter + '\n' + 'pkc2 produced: ' + pkc2Counter + '\n' + 'pko produced : ' + pkoCounter + '\n' + 'pksl produced : ' + pkslCounter + '\n' + 'sales: ' + sales + '\n');
+    summary += '<p>pkn crushed: ' + pknCrushed.toFixed(2) + '</p>' + '<p>pkn left: ' + pknCounter.toFixed(2) + '</p>' + '<p>pkc1 left: ' + pkc1Counter.toFixed(2) + '</p>' + '<p>pkc2 produced: ' + pkc2Counter.toFixed(2) + '</p>' + '<p>pko produced : ' + pkoCounter.toFixed(2) + '</p>' + '<p>pksl produced : ' + pkslCounter.toFixed(2) + '</p>' + '<p>sales: ' + sales.toFixed(2) + '</p>'
 
     return {    
         pknCrushed,
@@ -462,6 +469,7 @@ function DailySimulator (pkn, pkc1, hours, macbrk) {
         pkoCounter,
         pkc1Counter,
         pkc2Counter,
+        pkslCounter,
         breakageCounter,
         sales,
         summary
@@ -469,8 +477,8 @@ function DailySimulator (pkn, pkc1, hours, macbrk) {
 }
 
 function WeeklySimulator(days, totalPkn) {
-    var dailySim, macbrk, weeklyPko = weeklyPkc1 = weeklyPkn = weeklyPkc2 = weeklySales = weeklyBreakage = 0;
-    var weeklyProductionCost = 8100000 + 36500 + 140024 + 157500;
+    var dailySim, macbrk, weeklyPko = weeklyPkc1 = weeklyPkn = weeklyPkc2 = weeklyPksl = weeklySales = weeklyBreakage = 0;
+    var weeklyProductionCost = (totalPkn * 135000) + 387576 + 132500;
     var cashIn = 0;
     var summary = '';
     for (var i = 1; i <= days; i++) {
@@ -480,6 +488,7 @@ function WeeklySimulator(days, totalPkn) {
             weeklyPko += dailySim.pkoCounter;
             weeklyPkc1 = dailySim.pkc1Counter;
             weeklyPkc2 += dailySim.pkc2Counter;
+            weeklyPksl += dailySim.pkslCounter;
             weeklyBreakage + dailySim.breakageCounter;
             totalPkn = dailySim.pknCounter;
             weeklySales += dailySim.sales;
@@ -489,6 +498,7 @@ function WeeklySimulator(days, totalPkn) {
             weeklyPko += dailySim.pkoCounter;
             weeklyPkc1 = dailySim.pkc1Counter;
             weeklyPkc2 += dailySim.pkc2Counter;
+            weeklyPksl += dailySim.pkslCounter;
             weeklyBreakage += dailySim.breakageCounter;
             totalPkn = dailySim.pknCounter;
             weeklySales += dailySim.sales;
@@ -508,19 +518,20 @@ function WeeklySimulator(days, totalPkn) {
         // }
 
         console.log('Day ' + i + ' summary');
-        console.log('pkn crushed: ' + dailySim.pknCrushed + '\n' + 'pkn left: ' + dailySim.pknCounter + '\n' + 'pkc1 left: ' + dailySim.pkc1Counter + '\n' + 'pkc2 produced: ' + dailySim.pkc2Counter + '\n' + 'pko produced : ' + dailySim.pkoCounter + '\n' + 'sales: ' + dailySim.sales + '\n');
+        console.log('pkn crushed: ' + dailySim.pknCrushed + '\n' + 'pkn left: ' + dailySim.pknCounter + '\n' + 'pkc1 left: ' + dailySim.pkc1Counter + '\n' + 'pkc2 produced: ' + dailySim.pkc2Counter + '\n' + 'pko produced : ' + dailySim.pkoCounter + '\n' + 'pksl produced : ' + dailySim.pkslCounter + '\n' + 'sales: ' + dailySim.sales + '\n');
         console.log('Weekly cummulative summary');
-        console.log('pkn left: ' + totalPkn + '\n' + 'pkc1 left: ' + weeklyPkc1 + '\n' + 'pkc2 produced left: ' + weeklyPkc2 + '\n' + 'pko produced left: ' + weeklyPko + '\n' + 'sales: ' + weeklySales + '\n' + 'breakdowns: ' + weeklyBreakage + '\n');
+        console.log('pkn left: ' + totalPkn + '\n' + 'pkc1 left: ' + weeklyPkc1 + '\n' + 'pkc2 produced left: ' + weeklyPkc2 + '\n' + 'pko produced left: ' + weeklyPko + '\n'  + 'pksl produced left: ' + weeklyPksl + '\n' + 'sales: ' + weeklySales + '\n' + 'breakdowns: ' + weeklyBreakage + '\n');
     }
 
     var netRevenue = weeklySales - weeklyProductionCost;
     // var netCashIn = cashIn - weeklyProductionCost;
-    summary += '<p>pkn left: ' + totalPkn + '</p>' + '<p>pkc1 left: ' + weeklyPkc1 + '</p>' + '<p>pkc2 produced: ' + weeklyPkc2 + '</p>' + '<p>pko produced: ' + weeklyPko + '</p>' + '<p>sales: ' + weeklySales + '</p>' + '<p>breakdowns: ' + weeklyBreakage + '</p>' + '<p>Net revenue: ' + netRevenue + '</p>';
+    summary += '<p>pkn left: ' + totalPkn + '</p>' + '<p>pkc1 left: ' + weeklyPkc1 + '</p>' + '<p>pkc2 produced: ' + weeklyPkc2 + '</p>' + '<p>pko produced: ' + weeklyPko + '</p>' + '<p>pksl produced: ' + weeklyPksl + '</p>' + '<p>sales: ' + weeklySales + '</p>' + '<p>breakdowns: ' + weeklyBreakage + '</p>' + '<p>Net profit: ' + netRevenue + '</p>';
 
     return {
         weeklyPko,
         weeklyPkc1,
         weeklyPkc2,
+        weeklyPksl,
         weeklySales,
         netRevenue,
         summary,
